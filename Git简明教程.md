@@ -13,7 +13,7 @@
    Initialized empty Git repository in /home/mygit/test/learn-git/.git/
    ```
 
-3. 创建和查看历史版本库
+3. 创建，查看和回退历史版本库
 
    ```shell
    # 添加文件 可以一个或多个文件 此时文件进入 暂存区
