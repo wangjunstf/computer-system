@@ -109,9 +109,7 @@ UDP是通过数据包的形式发送到目标主机，对UDP而言，每次只�
    
    ```
 
-
-
-### 2.3 基于UDP的回声服务器端/客户端
+### 2.3 基于UDP的回声服务器端/客户端代码示例
 
 描述：编写服务器端程序和客户端程序，客户端向服务器端发送一条信息，服务器端将信息原路返回，就像回声一样。
 
@@ -244,7 +242,7 @@ void error_handling(char *message)
 
 
 
-**编译并执行**
+### 2.4 编译并执行
 
 ```shell
 $ gcc udp_echo_server.c /bin/udp_echo_server
@@ -259,3 +257,178 @@ Message from server:hello wold
 Insert message(q to quit)
 ```
 
+
+
+## 三、高性能UDP
+
+### 3.1 UDP套接字地址分配
+
+观察udp_echo_client.c，他缺少套接字地址的分配过程。TCP客户端调用connect函数自动将IP地址和端口号分配给套接字。而**UDP则是在发送数据的时候给套接字临时绑定IP地址和端口号**，数据传输完成就解除绑定。这样的特性，可以让主机用同一个套接字给不同的主机发送数据。同样，在**UDP在接收数据的时候给套接字临时绑定IP地址和端口号**，这样就可以从不同的主机接收数据。
+
+
+
+### 3.2 已连接套接字与未连接套接字
+
+UDP可以不设置UDP套接字的地址信息，那么套接字在发送和接收数据的时候临时绑定地址信息，在需要与同一主机进行长时间通信时，这种设置显然不是最高效的选择。
+
+
+
+我们可以用以下函数给UDP套接字分配地址信息：提前分配地址信息的套接字称为**已连接套接字**，反之则为**未连接套接字**。
+
+```c
+connect(sock, (struct sockaddr *)&adr, sizeof(adr));
+
+//这样就可以调用write和read函数进行发送和接收数据。
+```
+
+
+
+### 3.3 已连接套接字代码示例
+
+将udp_echo_client.c改为已连接套接字。
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+
+#define BUF_SIZE 30
+
+void error_handling(char *message);
+
+int main(int argc, char *argv[])
+{
+    int sock;
+    char message[BUF_SIZE];
+    int str_len;
+    socklen_t adr_len;
+
+    struct sockaddr_in serv_adr, from_adr;
+
+    if (argc != 3)
+    {
+        printf("Usage: %s <IP> <PORT>\n", argv[1]);
+        exit(1);
+    }
+
+    sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock == -1)
+    {
+        error_handling("socket() error");
+    }
+
+    memset(&serv_adr, 0, sizeof(serv_adr));
+    serv_adr.sin_family = AF_INET;
+    serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serv_adr.sin_port = htons(atoi(argv[2]));
+
+    connect(sock, (struct sockaddr*)&serv_adr,sizeof(serv_adr));
+    while (1)
+    {
+        fputs("Insert message(q to quit)", stdout);
+        fgets(message, sizeof(message), stdin);
+
+        if (!strcmp("q\n", message) || !strcmp("Q!\n", message))
+        {
+            break;
+        }
+
+        // sendto(sock, message, strlen(message), 0, (struct sockaddr *)&serv_adr, sizeof(serv_adr));
+        write(sock,message,strlen(message));
+
+        // adr_len = sizeof(from_adr);
+        // str_len = recvfrom(sock, message, BUF_SIZE, 0, (struct sockaddr *)&from_adr, &adr_len);
+
+        str_len = read(sock,message,BUF_SIZE-1);
+        message[str_len]=0;
+
+        printf("Message from server:%s", message);
+    }
+    close(sock);
+    return 0;
+}
+
+void error_handling(char *message)
+{
+    fputs(message, stderr);
+    fputc('\n', stderr);
+    exit(1);
+}
+
+```
+
+
+
+### 3.2 编译并运行
+
+```shell
+$ gcc udp_echo_server.c /bin/udp_echo_server
+$ ./bin/udp_echo_server 9190
+```
+
+```shell
+$ gcc u_con_echo_client.c -o ./bin/u_con_echo_client
+$ mygit@ubuntu:~/computer-system/Linux/src$ ./bin/u_con_echo_client 127.0.0.1 9190
+Insert message(q to quit)hello world
+Message from server:hello world
+Insert message(q to quit)how are you
+Message from server:how are you
+Insert message(q to quit)123123
+Message from server:123123
+Insert message(q to quit)
+```
+
+
+
+## 四、习题
+
+（1）UDP为什么比TCP速度快？为什么TCP数据传输可靠而UDP数据传输不可靠？
+
+> 答：UDP直接传送数据包，并不需要额外的数据来验证传输的的数据。而TCP发送的数据包，需要通过ACK来验证，用SEQ给数据编号，用确认、窗口、重传、拥塞控制机制，来确保数据的安全传输。所以UDP比TCP传输速度快，但UDP传输的数据并不可靠，可能有数据包丢失或损坏。
+>
+> TCP数据传输有多重保障所以更加可靠。
+>
+> UDP只管发送，网络通信的不可靠性决定了UDP的不可靠。
+
+（2）下列不属于UDP特点的是：
+
+1. UDP 不同于 TCP ，不存在连接概念，所以不像 TCP 那样只能进行一对一的数据传输。
+2. 利用 UDP 传输数据时，如果有 2 个目标，则需要 2 个套接字。
+3. UDP 套接字中无法使用已分配给 TCP 的同一端口号
+4. UDP 套接字和 TCP 套接字可以共存。若需要，可以同时在同一主机进行 TCP 和 UDP 数据传输。
+5. 针对 UDP 函数也可以调用 connect 函数，此时 UDP 套接字跟 TCP 套接字相同，也需要经过 3 次握手阶段
+
+> 答：2，3，5不属于UDP特点
+>
+> 2（一个套接字可以给多个套接字发送数据）
+>
+> 3  UDP和TCP可以共用一个端口号，并不会冲突，数据接收时时根据五元组{传输协议，源IP，目的IP，源端口，目的端口}判断接受者的
+>
+> 5  调用 connect 函数只是为了绑定地址信息。
+>
+> 1，4属于UDP的特点
+
+（3）UDP数据报向对方主机的UDP套接字传递过程中，IP和UDP分别负责哪些部分？
+
+> 答：数据在物理链路中传输由IP协议负责，到的目标主机后，由UDP协议负责。
+
+（4）UDP一般比TCP快，但根据交换数据的特点，其差异可大可小。请说明何种情况下UDP的性能优于TCP？
+
+> 答：当交换的数据比较小时，UDP的性能优于TCP。
+
+（5）客户端TCP套接字调用connect函数时自动分配IP和端口号。UDP中不调用bind函数，那何时分配IP地址和端口号？
+
+> 答：在实际接收数据和发送数据时给套接字分配IP地址和端口号。
+
+（6）TCP客户端必须调用connect函数，而UDP中可以选择性调用。请问，在UDP中调用connect函数有哪些好处？
+
+> 答：可以省去以下两个步骤所产生的时间：
+>
+> 向UDP套接字注册IP和端口
+>
+> 删除UDP套接字中注册的目标地址信息
+
+（7）请参考本章给出的uecho_server.c和echo_client.c，编写示例使服务器端和客户端轮流收发消息。收发的消息均要输出到控制台窗口。
