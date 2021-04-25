@@ -16,24 +16,31 @@
 3. 创建和查看历史版本库
 
    ```shell
-   $ git add readme.txt  						    # 添加文件 可以一个或多个文件 此时文件进入 暂存区
-   $ git commit -m "add readme.txt"      # 此时刚添加的文件正式加入版本库，后续可恢复到提前前的状态
+   # 添加文件 可以一个或多个文件 此时文件进入 暂存区
+   $ git add readme.txt  
+   
+   # 此时刚添加的文件正式加入版本库，后续可恢复到提前前的状态
+   $ git commit -m "add readme.txt"     
    [master (root-commit) a1f54c2] add readme.txt
     1 file changed, 1 insertion(+)
     create mode 100644 readme.txt
    
-   $ git commit -m "add file"            # 添加新文件
+   # 添加新文件
+   $ git commit -m "add file"            
    [master 3a3853a] add file
     1 file changed, 1 insertion(+)
     create mode 100644 file
     
-   $ git add readme.txt                  # 添加修改过的文件 readme.txt 到暂存区
+   # 添加修改过的文件 readme.txt 到暂存区
+   $ git add readme.txt                  
    
-   $ git commit -m "add This project help you to learn git."   # 把刚添加的文件放进版本库
+   # 把刚添加的文件放进版本库
+   $ git commit -m "add This project help you to learn git."   
    [master bd8b50d] add This project help you to learn git.
     1 file changed, 2 insertions(+)
    
-   $ git log                             # 查看版本库信息
+   # 查看版本库信息
+   $ git log                             
    commit bd8b50d5b5062ac342f82f249bffba7d6baf0036 (HEAD -> master)
    Author: wangjunstf <2634683912@qq.com>
    Date:   Fri Apr 23 10:05:09 2021 +0800
@@ -45,7 +52,8 @@
        add file
    ......
    
-   $ git log --pretty=oneline            # 简化版本库信息输出
+   # 简化版本库信息输出
+   $ git log --pretty=oneline            
    bd8b50d5b5062ac342f82f249bffba7d6baf0036 (HEAD -> master) add This project help you to learn git.
    3a3853a5374156ea2f7fdb7e07f06077636bd4bb add file
    a1f54c2045fca053248ee67fffff087a478dfa72 add readme.txt
@@ -54,27 +62,34 @@
 4. 版本回退
 
    ```shell
-   $ git reset --hard HEAD^                # 回退到上一个版本
-   HEAD is now at 3a3853a add file
-   $ git reset --hard 3a3853               # 回退到指定版本,本指令和上一条指令的执行效果相同
+   # 回退到上一个版本
+   $ git reset --hard HEAD^                
    HEAD is now at 3a3853a add file
    
-   $ git reflog														# 查看历史记录  
+   # 回退到指定版本,本指令和上一条指令的执行效果相同
+   $ git reset --hard 3a3853               
+   HEAD is now at 3a3853a add file
+   
+   # 查看历史记录  
+   $ git reflog														
    3a3853a (HEAD -> master) HEAD@{0}: reset: moving to 3a3853
    3a3853a (HEAD -> master) HEAD@{1}: reset: moving to HEAD^
    bd8b50d HEAD@{2}: commit: add This project help you to learn git.
    3a3853a (HEAD -> master) HEAD@{3}: commit: add file
    a1f54c2 HEAD@{4}: commit (initial): add readme.txt
-   																				#如果想恢复到调用reset之前的版本，可以用该命令查看指定的版本号恢复
+   #如果想恢复到调用reset之前的版本，可以用该命令查看指定的版本号恢复
    ```
 
 5. 查看和修改工作区内容
 
    ```shell
-   $ git status                            # 查看工作区信息
+   # 查看工作区信息
+   $ git status                            
    On branch master
    nothing to commit, working tree clean
-   $ git status														# 修改完文件之后，该命令能显示工作区的当前状态
+   
+   # 修改完文件之后，该命令能显示工作区的当前状态
+   $ git status														
    On branch master
    Changes not staged for commit:
      (use "git add <file>..." to update what will be committed)
@@ -91,9 +106,11 @@
      (use "git reset HEAD <file>..." to unstage)
    
    	modified:   readme.txt
-   																				# modified:   readme.txt 表示readme.txt已经添加到暂存区，还未加入版本库
+   # modified:   readme.txt 表示readme.txt已经添加到暂存区，还未加入版本库
    
-   $ git diff HEAD -- readme.txt           # 查看工作区和版本库里面最新版本的区别  HEAD^ 次新版本
+   
+   # 查看工作区和版本库里面最新版本的区别  HEAD^ 次新版本
+   $ git diff HEAD -- readme.txt           
    diff --git a/readme.txt b/readme.txt
    index d344129..2200906 100644
    --- a/readme.txt
@@ -103,18 +120,24 @@
    +
    +This is a guide.
    
-   $ git checkout -- readme.txt						# 丢弃工作区的修改 ,回到最近提交到版本库的版本，暂存区不变
+   # 丢弃工作区的修改 ,回到最近提交到版本库的版本，暂存区不变
+   $ git checkout -- readme.txt						
    
-   $ git reset HEAD file                   # 把暂存区的内容放回工作区
+   # 把暂存区的内容放回工作区
+   $ git reset HEAD file                   
    
-   $ git checkout -- file                  # 丢弃工作区的修改，上面和本条命令结合，撤销了提交到暂存区的修改
+   # 丢弃工作区的修改，上面和本条命令结合，撤销了提交到暂存区的修改
+   $ git checkout -- file                  
    ```
 
 6. 删除文件
 
    ```shell
-   $ git rm test.txt                        #删除工作区文件
-   $ git commit -m "remove test.txt"        #将删除操作提交到版本库
+   #删除工作区文件
+   $ git rm test.txt 
+   
+   #将删除操作提交到版本库
+   $ git commit -m "remove test.txt"        
    ```
 
 ## 二、远程仓库提交(GitHub)
