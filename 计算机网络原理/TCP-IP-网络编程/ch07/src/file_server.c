@@ -17,7 +17,7 @@ int main(int argc, char* argv[]){
     struct sockaddr_in serv_adr, clnt_adr;
     socklen_t clnt_adr_sz; //记录客户端地址结构体长度
     if(argc != 2){
-        printf("Usage: %s <PORT>\n", argv[1]);
+        printf("Usage: %s <PORT>\n", argv[0]);
         exit(1);    
         //立即终止调用过程，属于该进程的所有文件描述符都被关闭，
         //并且该进程的任何子进程都由进程1(init)继承，并且向该进程的父进程发送SIGCHLD信号。
@@ -32,10 +32,10 @@ int main(int argc, char* argv[]){
     serv_adr.sin_port = htons(atoi(argv[1]));
 
     bind(serv_sd, (struct sockaddr *)&serv_adr, sizeof(serv_adr));
-    listen(serv_adr,5);   //开启监听状态，等待队列数为5
+    listen(serv_sd,5);   //开启监听状态，等待队列数为5
 
     clnt_adr_sz = sizeof(clnt_adr);
-    clnt_adr = accept(serv_sd, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
+    clnt_sd = accept(serv_sd, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
 
     while(1){
         read_cnt = fread((void *)buf,1, BUF_SIZE, fp);
@@ -51,14 +51,15 @@ int main(int argc, char* argv[]){
     buf[read_cnt] = 0;
     printf("%s\n",buf);
     fclose(fp);
+    shutdown(clnt_sd, SHUT_RD);
     close(serv_sd);
-    close(clnt_sd);
+    
 
     return 0;
 }
 
 void error_handling(char* message){
-    fputs("message",stdrr);
+    fputs("message",stderr);
     fputc('\n',stderr);
     exit(1);
 }
