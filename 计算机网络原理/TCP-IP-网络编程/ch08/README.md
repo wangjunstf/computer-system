@@ -202,7 +202,6 @@ int main(int argc, char* argv[]){
         printf("IP addr %d : %s \n",i+1, inet_ntoa(*(struct in_addr*)host->h_addr_list[i]));
         // printf("IP addr %d : %s \n", i+1, inet_ntoa(*(struct in_addr*)host->h_addr_list[i]));
     }
-
     return 0;
 }
 
