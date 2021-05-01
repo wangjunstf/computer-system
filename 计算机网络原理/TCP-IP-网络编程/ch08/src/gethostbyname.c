@@ -28,12 +28,11 @@ int main(int argc, char* argv[]){
 
     for(int i=0; host->h_addr_list[i]; ++i){
         //  inet_ntoa() 将in_addr结构体中保存的地址转换为网络字节序iP地址
-        printf("IP ADDR %d %s\n",i,inet_ntoa(*(struct in_addr*)host->h_addr_list[i]));
+        printf("IP ADDR %d %s\n",i+1,inet_ntoa(*(struct in_addr*)host->h_addr_list[i]));
     }
 
     return 0;
 }
-
 
 void error_handling(char *message)
 {
