@@ -10,6 +10,7 @@ void errorHandling(const char *message);
 void read_routine(int sock, char *buf);
 void write_routine(int sock, char *buf);
 int itoc(int num, char *str);
+
 int main(int argc, char *argv[])
 {
     int sock;
