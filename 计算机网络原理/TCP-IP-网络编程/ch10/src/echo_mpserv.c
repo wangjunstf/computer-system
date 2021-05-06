@@ -1,60 +1,72 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
-#include <arpa/inet.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 
 #define BUF_SIZE 1024
 void errorHandling(const char *message);
-int itoc(int num, char *str);
+
 int main(int argc, char *argv[])
 {
-    int sock;
-    char message[BUF_SIZE];
     int str_len;
-    struct sockaddr_in serv_adr;
+    int serv_sock, clnt_sock;
+    char message[BUF_SIZE];
 
-    if (argc != 3)
+    struct sockaddr_in serv_adr, clnt_adr;
+    socklen_t clnt_adr_sz;
+    if (argc != 2)
     {
-        printf("Usage : %s <IP> <port>\n", argv[0]);
+        printf("Usage: %s <port> \n", argv[1]);
         exit(1);
     }
 
-    sock = socket(PF_INET, SOCK_STREAM, 0);
-    if (sock == -1)
+    //调用socket函数创建套接字
+    serv_sock = socket(PF_INET, SOCK_STREAM, 0);
+    if (serv_sock == -1)
     {
         errorHandling("socket() error");
     }
-
     memset(&serv_adr, 0, sizeof(serv_adr));
     serv_adr.sin_family = AF_INET;
-    serv_adr.sin_addr.s_addr = inet_addr(argv[1]);
-    serv_adr.sin_port = htons(atoi(argv[2]));
+    serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serv_adr.sin_port = htons(atoi(argv[1]));
 
-    if (connect(sock, (struct sockaddr *)&serv_adr, sizeof(serv_adr)) == -1)
+    //调用bind函数分配IP地址和端口号
+    if (bind(serv_sock, (struct sockaddr *)&serv_adr, sizeof(serv_adr)) == -1)
     {
-        errorHandling("connect() error!");
-    }
-    else
-    {
-        puts("Connected......");
+        errorHandling("bind() error!");
     }
 
-    while (1)
+    //调用listen函数将套接字转化为可接收连接状态
+    if (listen(serv_sock, 5) == -1)
     {
-        fputs("Input message(Q to quit):", stdout);
-        fgets(message, BUF_SIZE, stdin);
-        if (!strcmp(message, "q\n") || !strcmp(message, "Q\n"))
-            break;
-
-        write(sock, message, strlen(message));
-        str_len = read(sock, message, BUF_SIZE - 1);
-        message[str_len] = 0;
-        printf("Message from server: %s", message);
+        errorHandling("listen() error!");
     }
-
-    close(sock);
+    clnt_adr_sz = sizeof(clnt_adr);
+    //write函数用于传输数据，若程序经accept函数运行到本行，说明已经有了连接请求
+    //调用accept函数受理连接请求，如果在没有连接请求的情况下调用该函数，则不会返回，直到有连接请求为止。
+    for (int i = 0; i < 5; i++)
+    {
+        //调用accept函数受理连接请求，如果在没有连接请求的情况下调用该函数，则不会返回，直到有连接请求为止。
+        clnt_sock = accept(serv_sock, (struct sockaddr *)&clnt_adr, &clnt_adr_sz);
+        if (clnt_sock == -1)
+        {
+            errorHandling("accept() error!");
+        }
+        else
+        {
+            printf("Connected client %d\n", i + 1);
+        }
+        while ((str_len = read(clnt_sock, message, BUF_SIZE)))
+        {
+            //str_len表示读取到的字符串长度
+            write(clnt_sock, message, str_len);
+        }
+        close(clnt_sock);
+    }
+    close(serv_sock);
     return 0;
 }
 
@@ -63,22 +75,4 @@ void errorHandling(const char *message)
     fputs(message, stderr);
     fputc('\n', stderr);
     exit(1);
-}
-
-int itoc(int num, char *str)
-{
-    char tem[1024];
-    int id = 0, id2 = 0;
-    while (num)
-    {
-        int t = num % 10;
-        tem[id++] = t + '0';
-        num /= 10;
-    }
-    str[id--] = '\0';
-    while (id >= 0)
-    {
-        str[id2++] = tem[id--];
-    }
-    return 0;
 }
