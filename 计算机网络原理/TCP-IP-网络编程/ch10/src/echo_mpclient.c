@@ -7,6 +7,8 @@
 
 #define BUF_SIZE 1024
 void errorHandling(const char *message);
+void read_routine(int sock, char *buf);
+void write_routine(int sock, char *buf);
 int itoc(int num, char *str);
 int main(int argc, char *argv[])
 {
@@ -14,6 +16,9 @@ int main(int argc, char *argv[])
     char message[BUF_SIZE];
     int str_len;
     struct sockaddr_in serv_adr;
+
+    pid_t pid;
+
 
     if (argc != 3)
     {
@@ -41,19 +46,12 @@ int main(int argc, char *argv[])
         puts("Connected......");
     }
 
-    while (1)
-    {
-        fputs("Input message(Q to quit):", stdout);
-        fgets(message, BUF_SIZE, stdin);
-        if (!strcmp(message, "q\n") || !strcmp(message, "Q\n"))
-            break;
-
-        write(sock, message, strlen(message));
-        str_len = read(sock, message, BUF_SIZE - 1);
-        message[str_len] = 0;
-        printf("Message from server: %s", message);
+    pid = fork();
+    if(pid==0){
+        write_routine(sock,message);
+    }else{
+        read_routine(sock, message);
     }
-
     close(sock);
     return 0;
 }
@@ -63,6 +61,30 @@ void errorHandling(const char *message)
     fputs(message, stderr);
     fputc('\n', stderr);
     exit(1);
+}
+
+void read_routine(int sock, char *buf){
+    while(1){
+        int str_len = read(sock, buf, BUF_SIZE);
+        if(str_len == 0)
+            return;
+
+        buf[str_len] = 0;
+        printf("Message from server: %s",buf);
+    }
+}
+
+void write_routine(int sock, char *buf){
+    while(1){
+        fgets(buf,BUF_SIZE, stdin);
+        if (!strcmp(buf, "q\n") || !strcmp(buf, "Q\n")){
+            shutdown(sock, SHUT_WR);
+            return;
+        }
+
+        write(sock,buf,strlen(buf));
+        
+    }
 }
 
 int itoc(int num, char *str)

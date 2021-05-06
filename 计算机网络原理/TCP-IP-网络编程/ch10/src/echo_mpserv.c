@@ -4,15 +4,26 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 #define BUF_SIZE 1024
 void errorHandling(const char *message);
+void read_childproc(int sig);
 
 int main(int argc, char *argv[])
 {
-    int str_len;
+    int str_len,state;
     int serv_sock, clnt_sock;
     char message[BUF_SIZE];
+
+    pid_t pid;
+    struct sigaction act;
+    act.sa_handler = read_childproc;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = 0;
+    state = sigaction(SIGCHLD, &act, 0);
+
 
     struct sockaddr_in serv_adr, clnt_adr;
     socklen_t clnt_adr_sz;
@@ -47,25 +58,39 @@ int main(int argc, char *argv[])
     clnt_adr_sz = sizeof(clnt_adr);
     //write函数用于传输数据，若程序经accept函数运行到本行，说明已经有了连接请求
     //调用accept函数受理连接请求，如果在没有连接请求的情况下调用该函数，则不会返回，直到有连接请求为止。
-    for (int i = 0; i < 5; i++)
-    {
+
+    while(1){
+
         //调用accept函数受理连接请求，如果在没有连接请求的情况下调用该函数，则不会返回，直到有连接请求为止。
         clnt_sock = accept(serv_sock, (struct sockaddr *)&clnt_adr, &clnt_adr_sz);
         if (clnt_sock == -1)
         {
-            errorHandling("accept() error!");
+            continue;
         }
         else
         {
-            printf("Connected client %d\n", i + 1);
+            printf("new connected client\n");
         }
-        while ((str_len = read(clnt_sock, message, BUF_SIZE)))
-        {
-            //str_len表示读取到的字符串长度
-            write(clnt_sock, message, str_len);
+        pid = fork();
+        if(pid == -1){
+            close(clnt_sock);
+            continue;
         }
-        close(clnt_sock);
+        if(pid==0){
+            close(serv_sock);
+            while ((str_len = read(clnt_sock, message, BUF_SIZE))){
+                //str_len表示读取到的字符串长度
+                write(clnt_sock, message, str_len);
+            }
+
+            close(clnt_sock);
+            puts("client disconnected...");
+            return 0;
+        }else{
+            close(clnt_sock);
+        }
     }
+
     close(serv_sock);
     return 0;
 }
@@ -75,4 +100,11 @@ void errorHandling(const char *message)
     fputs(message, stderr);
     fputc('\n', stderr);
     exit(1);
+}
+
+void read_childproc(int sig){
+    pid_t pid;
+    int status;
+    pid = waitpid(-1, &status, WNOHANG); //-1代表可以等待任意子进程终止  WNOHANG即使没有终止的子进程也不会进入阻塞状态，而是返回0并退出函数
+    printf("remove proc id: %d\n",pid);
 }
