@@ -136,7 +136,7 @@ Child proc output: Thank for your message
 
 使用2个管道完成双向通信，如下图所示：
 
-<img src="/Users/wangjun/Library/Application Support/typora-user-images/截屏2021-05-07 下午9.17.36.png" alt="截屏2021-05-07 下午9.17.36" style="zoom:50%;" />
+<img src="https://raw.githubusercontent.com/wangjunstf/pics/main/uPic/%E6%88%AA%E5%B1%8F2021-05-07%20%E4%B8%8B%E5%8D%889.17.36.png" alt="截屏2021-05-07 下午9.17.36" style="zoom:50%;" />
 
 #### 代码示例
 
