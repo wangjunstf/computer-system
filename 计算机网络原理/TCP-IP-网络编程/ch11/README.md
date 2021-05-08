@@ -66,7 +66,7 @@ Who are you?
 
 下面创建2个进程通过1个管道进行双向数据交换，其通信方式如下图所示：
 
-<img src="/Users/wangjun/Library/Application Support/typora-user-images/截屏2021-05-07 下午9.04.34.png" alt="截屏2021-05-07 下午9.04.34" style="zoom: 67%;" />
+<img src="https://raw.githubusercontent.com/wangjunstf/pics/main/uPic/%E6%88%AA%E5%B1%8F2021-05-07%20%E4%B8%8B%E5%8D%889.04.34.png" alt="截屏2021-05-07 下午9.04.34" style="zoom: 67%;" />
 
 #### 代码示例
 

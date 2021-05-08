@@ -61,7 +61,7 @@ select函数是整个I/O复用的全部内容，以下为select函数的调用�
 
 
 
-<img src="/Users/wangjun/Library/Application Support/typora-user-images/截屏2021-05-08 下午11.12.06.png" alt="截屏2021-05-08 下午11.12.06" style="zoom: 67%;" />
+<img src="https://raw.githubusercontent.com/wangjunstf/pics/main/uPic/%E6%88%AA%E5%B1%8F2021-05-08%20%E4%B8%8B%E5%8D%8811.12.06.png" alt="截屏2021-05-08 下午11.12.06" style="zoom: 67%;" />
 
  
 
@@ -102,7 +102,7 @@ struct timeval{
 
 调用select函数后，可以知道哪些文件描述符发生了变化，发生变化的文件描述符被标记为1，没有发生变化的文件描述符被标记为0，如下图所示：
 
-<img src="/Users/wangjun/Library/Application Support/typora-user-images/截屏2021-05-08 下午11.27.36.png" alt="截屏2021-05-08 下午11.27.36" style="zoom: 67%;" />
+<img src="https://raw.githubusercontent.com/wangjunstf/pics/main/uPic/%E6%88%AA%E5%B1%8F2021-05-08%20%E4%B8%8B%E5%8D%8811.27.36.png" alt="截屏2021-05-08 下午11.27.36" style="zoom: 67%;" />
 
 
 
