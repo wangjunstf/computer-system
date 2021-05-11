@@ -309,7 +309,7 @@ $ ./bin/oob_send 127.0.0.1 9190
 
 无法快速把病人送到医院，并不意味着不需要医院进行急救。TCP的急救消息无法保证及时入院，但可以要求急救。当然，急救措施由程序员完成。之前的示例oob_recv.c的运行过程中也传递了紧急消息，这可以通过事件处理函数确认。这就是MSG_OOB模式数据传输的实际意义。下面给出设置MSG_OOB可选项状态下的数据传输过程，如下图所示：
 
-<img src="/Users/wangjun/Library/Application Support/typora-user-images/截屏2021-05-10 下午9.54.06.png" alt="截屏2021-05-10 下午9.54.06" style="zoom:50%;" />
+<img src="https://raw.githubusercontent.com/wangjunstf/pics/main/uPic/%E6%88%AA%E5%B1%8F2021-05-10%20%E4%B8%8B%E5%8D%889.54.06.png" alt="截屏2021-05-10 下午9.54.06" style="zoom:50%;" />
 
 上图给出oob_recv.c调用send(sock, "890", strlen("890"), MSG_OOB)后输出缓冲状态，假设已传输之前的数据。
 
@@ -319,7 +319,7 @@ $ ./bin/oob_send 127.0.0.1 9190
 
 也就是，只用一个字节表示紧急消息，这一点可通过上图用于传输数据的TCP数据包的部分结构看的更清楚。如下图所示：
 
-<img src="/Users/wangjun/Library/Application Support/typora-user-images/截屏2021-05-10 下午10.23.49.png" alt="截屏2021-05-10 下午10.23.49" style="zoom: 50%;" />
+<img src="https://raw.githubusercontent.com/wangjunstf/pics/main/uPic/%E6%88%AA%E5%B1%8F2021-05-10%20%E4%B8%8B%E5%8D%8810.23.49.png" alt="截屏2021-05-10 下午10.23.49" style="zoom: 50%;" />
 
 TCP头中含有如下两种信息：
 
@@ -478,7 +478,7 @@ struct iovec {
 
 writev函数的功能如下图所示：
 
-<img src="/Users/wangjun/Library/Application Support/typora-user-images/截屏2021-05-11 上午11.06.30.png" alt="截屏2021-05-11 上午11.06.30" style="zoom: 67%;" />
+<img src="https://raw.githubusercontent.com/wangjunstf/pics/main/uPic/%E6%88%AA%E5%B1%8F2021-05-11%20%E4%B8%8A%E5%8D%8811.06.30.png" alt="截屏2021-05-11 上午11.06.30" style="zoom: 67%;" />
 
 
 
@@ -594,7 +594,7 @@ Second message已经包含一个换行符，所以不用在printf里输出换行
 
 仅从c语言角度，减少函数调用能相应地提高性能，但其更大意义在于减少数据包个数。假设为了提高效率而在服务器端明确阻止使用Nagle算法。其实writev函数再不采用Nagle算法时更有价值。
 
-<img src="/Users/wangjun/Library/Application Support/typora-user-images/截屏2021-05-11 上午11.40.18.png" alt="截屏2021-05-11 上午11.40.18" style="zoom: 33%;" />
+<img src="https://raw.githubusercontent.com/wangjunstf/pics/main/uPic/%E6%88%AA%E5%B1%8F2021-05-11%20%E4%B8%8A%E5%8D%8811.40.18.png" alt="截屏2021-05-11 上午11.40.18" style="zoom: 33%;" />
 
 为了提高速度而关闭了Nagle算法，如果调用3次write函数，很有可能通过3个数据包传输，而调用1次writev函数，只需通过1个数据包传输。
 
