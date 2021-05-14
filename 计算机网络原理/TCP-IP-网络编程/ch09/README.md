@@ -56,7 +56,7 @@ SO_TYPE是典型的只读可选项，只能在创建时决定，以后不能更�
 ```c
 #include <sys/socket.h>
 
-int setsockopt();
+int setsockopt(int sock, int level, int optname, void *optval, socklen_t *optlen);
 // 成功时返回0 失败时返回-1
 /*
 	sock 套接字文件描述符
