@@ -5,6 +5,10 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
+#include <new>
+#include <list>
+
+using namespace std;
 
 #define BUF_SIZE 1024
 #define EPOLL_SIZE 50
@@ -13,19 +17,16 @@ void errorHandling(const char *message);
 
 int main(int argc, char *argv[])
 {
+    list<int>clnts;
     int str_len, state;
     int serv_sock, clnt_sock;
     char message[BUF_SIZE];
     int fds[2];
 
     int fd_max, fd_num;
-    struct epoll_event *ep_events, *send_events;     //send_events保存可以发送数据的套接字
+    struct epoll_event *ep_events;
     struct epoll_event event;
-    struct epoll_event send_event;
     int epfd, event_cnt;
-    int send_cnt;   // 输出缓冲为空，可以立即发送数据的套接字
-
-
 
     struct sockaddr_in serv_adr, clnt_adr;
     socklen_t clnt_adr_sz;
@@ -61,14 +62,12 @@ int main(int argc, char *argv[])
     //调用accept函数受理连接请求，如果在没有连接请求的情况下调用该函数，则不会返回，直到有连接请求为止。
 
     epfd = epoll_create(EPOLL_SIZE);
-    ep_events = malloc(sizeof(struct epoll_event) * EPOLL_SIZE);
-    send_events = malloc(sizeof(struct epoll_event) * EPOLL_SIZE);
+    ep_events = new epoll_event[EPOLL_SIZE];
+    
 
     event.events = EPOLLIN;
     event.data.fd = serv_sock;
-
     epoll_ctl(epfd, EPOLL_CTL_ADD, serv_sock, &event);
-
 
     while (1)
     {
@@ -85,15 +84,11 @@ int main(int argc, char *argv[])
             {
                 clnt_adr_sz = sizeof(clnt_adr);
                 clnt_sock = accept(serv_sock, (struct sockaddr *)&clnt_adr, &clnt_adr_sz);
-                event.events = EPOLLIN|EPOLLOUT;
+                event.events = EPOLLIN;
                 event.data.fd = clnt_sock;
-
-                send_event.events = EPOLLOUT;
-                send_event.data.fd = clnt_sock;
-
-                epoll_ctl(epfd, EPOLL_CTL_ADD, clnt_sock, &event);
                 epoll_ctl(epfd, EPOLL_CTL_ADD, clnt_sock, &event);
                 printf("Connect client: %d\n", clnt_sock);
+                clnts.push_back(clnt_sock);
             }
             else
             {
@@ -103,13 +98,12 @@ int main(int argc, char *argv[])
                     epoll_ctl(epfd, EPOLL_CTL_DEL, ep_events[i].data.fd, NULL);
                     close(ep_events[i].data.fd);
                     printf("close client :%d \n", i);
+                    clnts.remove(ep_events[i].data.fd);
                 }
                 else
                 {
-                    send_cnt = epoll_wait(epfd, send_events, EPOLL_SIZE, -1);
-                    printf("%d client\n",send_cnt);
-                    for(int i=0; i<send_cnt; i++){
-                        write(send_events[i].data.fd, message, str_len);
+                    for(auto it = clnts.begin(); it!=clnts.end(); it++){
+                        write(*it, message, str_len);
                     }
                 }
             }
@@ -118,9 +112,6 @@ int main(int argc, char *argv[])
 
     close(serv_sock);
     close(epfd);
-    free(ep_events);
-    free(send_events);
-
     return 0;
 }
 
@@ -130,3 +121,7 @@ void errorHandling(const char *message)
     fputc('\n', stderr);
     exit(1);
 }
+
+
+
+
