@@ -1,3 +1,3 @@
-grade = input("输入成绩: ");
-if int(grade)>=90:
-    print("优秀")
+a=12
+b=12
+print("a+b="+str(a+b))
