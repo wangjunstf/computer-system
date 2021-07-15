@@ -1,6 +1,6 @@
-# 第6章 基于UDP的服务器端/客户端
+第6章 基于UDP的服务器端/客户端
 
-## 一、UDP概述
+UDP概述
 
 ### 1.1 TCP和UDP的区别
 
@@ -1665,7 +1665,7 @@ int main(int argc, char* argv[]){
         }
     }
     return 0;
-}c
+}
 ```
 
 #### 编译运行
@@ -6643,9 +6643,7 @@ Message from server: I love computer programming
 * 进程：在操作系统构成单独执行流的单位。
 * 线程：在进程构成单独执行流的单位。
 
-操作系统，进程，线程之间的关系如下图所示：
-
-<img src="/Users/wangjun/Library/Application Support/typora-user-images/截屏2021-05-19 下午8.50.06.png" alt="截屏2021-05-19 下午8.50.06" style="zoom: 67%;" />
+操作系统，进程，线程之间的关系如下图所示：<img src="/Users/wangjun/Library/Application Support/typora-user-images/截屏2021-05-19 下午8.50.06.png" alt="截屏2021-05-19 下午8.50.06" style="zoom: 67%;" />
 
 
 

@@ -778,7 +778,7 @@ G[E]：E $\rightarrow$ E+T|T      T$ \rightarrow$ T*F|F      F$ \rightarrow$ (
 
 假设某一文法：
 
-G[S]：S $\rightarrow$ Sa，A $\rightarrow$ b  L(G) = {ba<sup>n</sup>|n⩾1}
+G[S]：S $\rightarrow$ Sa，S $\rightarrow$ b  L(G) = {ba<sup>n</sup>|n⩾1}
 
 w=baa
 

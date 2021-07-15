@@ -164,6 +164,7 @@
 
    ```shell
    $ git push -u learngit main
+   # 当与远程仓库建立连接之后使用 git push -u 远程仓库名 远程仓库分支
    ```
 
 6. 查看远程仓库
@@ -543,4 +544,11 @@ $ git merge --no-ff -m "merge with no-ff" dev # 此时合并前会为提交之�
    $ git push origin :refs/tags/v0.9
    ```
 
-   
+
+
+
+## 八、相关资源
+
+master 迁移到 main
+
+https://segmentfault.com/a/1190000038643126
