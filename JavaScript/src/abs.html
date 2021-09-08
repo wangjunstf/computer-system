@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title> 求实数的绝对值 </title>
+        <script>
+               function abs(x){
+                   if(typeof x !== 'number'){
+                       throw 'Not a number';
+                   }
+
+                   if(x>=0){
+                       return x;
+                   }else{
+                       return -x;
+                   }
+               }
+
+               function show() {
+                   var x = parseFloat(num.value);
+                   console.log(x+'\' abs: ' +abs(x)); //输出到控制台
+                   document.getElementById("elem").innerHTML = x+'\' abs '+abs(x); //输出到页面
+                   console.log('NaN‘ abs: '+abs(NaN)); 
+               }
+        </script>
+    </head>
+    <body>
+        <input type="text" name="num" id="num">
+        <input type="button" onclick="show()" name="" value="求其绝对值">
+        <p id="elem"></p>
+    </body>
+
+</html>
